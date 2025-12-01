@@ -22,13 +22,13 @@ TABLES_ORDER = [
 TABLES_TRUNCATE = list(reversed(TABLES_ORDER))
 
 def migrate_small_table(sqlite_conn, pg_conn, table_name):
-    df = pd.read_sql(f'SELECT * FROM "{table_name}"', sqlite_conn)
+    df = pd.read_sql(f'SELECT * FROM {table_name}', sqlite_conn)
     df = df.where(pd.notnull(df), None) 
     df.columns = [col.strip() for col in df.columns] 
 
     columns = [f'"{col}"' for col in df.columns]     
     placeholders = ", ".join(["%s"] * len(columns))
-    sql = f'INSERT INTO "{table_name}" ({", ".join(columns)}) VALUES ({placeholders})'
+    sql = f'INSERT INTO {table_name} ({", ".join(columns)}) VALUES ({placeholders})'
 
     cursor = pg_conn.cursor()
     if not df.empty:
@@ -40,7 +40,7 @@ def migrate_small_table(sqlite_conn, pg_conn, table_name):
     cursor.close()
 
 def migrate_large_table(sqlite_conn, pg_conn, table_name):
-    df = pd.read_sql(f'SELECT * FROM "{table_name}"', sqlite_conn)
+    df = pd.read_sql(f'SELECT * FROM {table_name}', sqlite_conn)
     df = df.where(pd.notnull(df), None)
     csv_file = os.path.join(CSV_DIR, f"{table_name}.csv")
     df.to_csv(csv_file, index=False)
@@ -48,7 +48,7 @@ def migrate_large_table(sqlite_conn, pg_conn, table_name):
 
     cursor = pg_conn.cursor()
     with open(csv_file, "r") as f:
-        cursor.copy_expert(f'COPY "{table_name}" FROM STDIN WITH CSV HEADER', f)
+        cursor.copy_expert(f'COPY {table_name} FROM STDIN WITH CSV HEADER', f)
     pg_conn.commit()
     cursor.close()
     print(f" Bulk loaded {len(df)} rows into {table_name}")
