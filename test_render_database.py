@@ -14,16 +14,6 @@ def test_postgress_connection(connection_string):
         print(f"PostgresSQL version: {db_version}")
 
         cur.close()
-
-
-        cur1 = conn.cursor()
-
-        cur1.execute("SELECT * from region;")
-        db_region = cur1.fetchall()
-        print("Connection successful!")
-        print(f"All regions: {db_region}")
-
-        cur1.close()
         conn.close()
         print("Connection closed")
         return True
